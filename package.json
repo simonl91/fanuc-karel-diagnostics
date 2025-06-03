@@ -2,7 +2,7 @@
 	"name": "fanuc-karel-diagnostics",
 	"displayName": "Fanuc karel diagnostic messages",
 	"description": "Fanuc karel diagnostic messages using ktrans, add ktrans to path before using",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"publisher": "simonl91",
 	"homepage": "https://github.com/simonl91/fanuc-karel-diagnostics/blob/main/README.md",
 	"private": false,
