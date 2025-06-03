@@ -2,6 +2,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
+import * as fs from 'fs';
 import * as cp from 'child_process';
 import { disconnect } from 'process';
 
@@ -23,6 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function updateDiagnostics(document: vscode.TextDocument, collection: vscode.DiagnosticCollection): void {
+	const dir = path.dirname(document.fileName); // get current path, use it as cwd for 'ktrans' command
 	const file = document.uri.path.toLowerCase();
 	if (file.endsWith('.kl')
 		&& !file.endsWith('.th.kl')
@@ -30,15 +32,19 @@ function updateDiagnostics(document: vscode.TextDocument, collection: vscode.Dia
 
 		let ktrans: string;
 		try {
-			const dir = path.dirname(document.fileName); // get current path, use it as cwd for 'ktrans' command
 			const opts = vscode.workspace.getConfiguration('ktrans'); // Get extension options
 			const args = opts.get('args'); // extract args
 			ktrans = cp.execSync(
-				'ktrans ' + args + ' "' + document.fileName + '" "' + path.join(os.tmpdir(), 'tullogtoys.pc" '),
+				'ktrans ' + args + ' "' + document.fileName + '"',
 				{ cwd: dir }
 			).toString();
 		} catch (err: any) {
 			ktrans = err.stdout.toString();
+		} finally {
+			const pcFile = document.fileName.replace(/\.kl$/i, '.pc');
+			if (fs.existsSync(pcFile)) {
+				fs.unlinkSync(pcFile);
+			}
 		}
 
 		const pattern = /(\n\s*)(?<line>\d+)(\s+)(?<text>.*?)(\n)(?<column>.*?\^)(.*?\n)(?<message>.*?)(\n)/gs;
